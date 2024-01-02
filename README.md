@@ -2,6 +2,18 @@
 Named Entity Recognition (NER) service of wrapped AI models powered by 
 [AREkit text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
 
+# Usage
+
+```bash
+pip install -r dependencies.txt
+```
+
+## Annotating texts
+
+```bash
+python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert"
+```
+
 ## Powered by
 
 * AREkit [[github]](https://github.com/nicolay-r/AREkit)
