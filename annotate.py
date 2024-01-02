@@ -14,7 +14,7 @@ from src.utils import IdAssigner
 
 parser = argparse.ArgumentParser(description="Apply NER annotation")
 
-parser.add_argument('--model', dest='model', type=str, default="ner_ontonotes_bert_mult1")
+parser.add_argument('--model', dest='model', type=str, default="ner_ontonotes_bert_mult")
 parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
 parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
 parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
