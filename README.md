@@ -1,4 +1,8 @@
 # ner-service
+![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
+![](https://img.shields.io/badge/AREkit-0.25.0-orange.svg)
+[![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ner-service/blob/main/NER_annotation_service.ipynb)
+
 Named Entity Recognition (NER) service of wrapped AI models powered by 
 [AREkit text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
 
