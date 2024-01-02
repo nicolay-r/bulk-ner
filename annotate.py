@@ -14,7 +14,7 @@ from src.utils import IdAssigner
 
 parser = argparse.ArgumentParser(description="Apply NER annotation")
 
-parser.add_argument('--model', dest='model', type=str, default="ner_ontonotes_bert")
+parser.add_argument('--model', dest='model', type=str, default="ner_ontonotes_bert_mult1")
 parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
 parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
 parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
@@ -55,7 +55,7 @@ def iter_annotated_data(texts_it):
 # Application of the NER for annotation texts.
 pipeline = [
     TermsSplitterParser(),
-    DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="ner_ontonotes_bert"),
+    DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name=args.model),
     HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                            filter_item_func=lambda i: isinstance(i, IndexedEntity),
                            result_key="listed-entities"),
