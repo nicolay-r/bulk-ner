@@ -3,7 +3,7 @@ import argparse
 import pandas as pd
 from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.common.utils import split_by_whitespaces
 
 from src.data_service import DataService
 from src.entity import IndexedEntity
@@ -55,8 +55,8 @@ output_formatters = {
 
 # Application of the NER for annotation texts.
 pipeline = [
-    TermsSplitterParser(),
-    DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name=args.model),
+    DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name=args.model,
+                              src_func=lambda text: split_by_whitespaces(text)),
     HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                            filter_item_func=lambda i: isinstance(i, IndexedEntity),
                            result_key="listed-entities"),

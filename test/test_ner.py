@@ -2,7 +2,7 @@ import unittest
 
 from arekit.common.pipeline.base import BasePipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
-from arekit.contrib.utils.pipelines.items.text.terms_splitter import TermsSplitterParser
+from arekit.common.utils import split_by_whitespaces
 
 from src.entity import IndexedEntity
 from src.pipeline.dp import DeepPavlovNERPipelineItem
@@ -24,8 +24,9 @@ class TestTransformersNERPipeline(unittest.TestCase):
     def test_benchmark(self):
 
         pipeline = [
-            TermsSplitterParser(),
-            DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name="ner_ontonotes_bert"),
+            DeepPavlovNERPipelineItem(id_assigner=IdAssigner(),
+                                      src_func=lambda text: split_by_whitespaces(text),
+                                      ner_model_name="ner_ontonotes_bert"),
             HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                                    filter_item_func=lambda i: isinstance(i, IndexedEntity),
                                    result_key="listed-entities"),
