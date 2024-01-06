@@ -1,2 +1,2 @@
-arekit @ git+https://github.com/nicolay-r/AREkit@0.25.0-night-rc
+arekit @ git+https://github.com/nicolay-r/AREkit@0.25.0-rc
 deeppavlov==1.3.0

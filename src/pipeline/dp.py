@@ -1,5 +1,5 @@
 from arekit.common.bound import Bound
-from arekit.common.docs.objects_parser import SentenceObjectsParserPipelineItem
+from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.text.partitioning.terms import TermsPartitioning
 
 from src.entity import IndexedEntity
@@ -8,9 +8,10 @@ from src.ner.obj_desc import NerObjectDescriptor
 from src.utils import IdAssigner
 
 
-class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
+class DeepPavlovNERPipelineItem(BasePipelineItem):
 
-    def __init__(self, id_assigner, ner_model_name, obj_filter=None, chunk_limit=128, display_value_func=None):
+    def __init__(self, id_assigner, ner_model_name, obj_filter=None,
+                 chunk_limit=128, display_value_func=None, **kwargs):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
         """
@@ -18,6 +19,7 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
         assert(isinstance(chunk_limit, int) and chunk_limit > 0)
         assert(isinstance(id_assigner, IdAssigner))
         assert(callable(display_value_func) or display_value_func is None)
+        super(DeepPavlovNERPipelineItem, self).__init__(**kwargs)
 
         # Initialize bert-based model instance.
         self.__dp_ner = DeepPavlovNER(ner_model_name)
@@ -25,10 +27,7 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
         self.__chunk_limit = chunk_limit
         self.__id_assigner = id_assigner
         self.__disp_value_func = display_value_func
-        super(DeepPavlovNERPipelineItem, self).__init__(TermsPartitioning())
-
-    def _get_parts_provider_func(self, input_data):
-        return self.__iter_subs_values_with_bounds(input_data)
+        self.__partitioning = TermsPartitioning()
 
     def __iter_subs_values_with_bounds(self, terms_list):
         assert(isinstance(terms_list, list))
@@ -67,4 +66,5 @@ class DeepPavlovNERPipelineItem(SentenceObjectsParserPipelineItem):
                 yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
 
     def apply_core(self, input_data, pipeline_ctx):
-        return super(DeepPavlovNERPipelineItem, self).apply_core(input_data=input_data, pipeline_ctx=pipeline_ctx)
+        parts_it = self.__iter_subs_values_with_bounds(input_data)
+        return self.__partitioning.provide(text=input_data, parts_it=parts_it)
