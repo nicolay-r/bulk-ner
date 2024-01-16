@@ -38,6 +38,7 @@ parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
 parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
 parser.add_argument('--src', dest='src', type=str, default="./data/test.csv")
 parser.add_argument('--output', dest='output', type=str, default=None)
+parser.add_argument('--chunk-limit', dest='chunk_limit', type=int, default=128)
 
 args = parser.parse_args()
 
@@ -56,7 +57,8 @@ output_formatters = {
 # Application of the NER for annotation texts.
 pipeline = [
     DeepPavlovNERPipelineItem(id_assigner=IdAssigner(), ner_model_name=args.model,
-                              src_func=lambda text: split_by_whitespaces(text)),
+                              src_func=lambda text: split_by_whitespaces(text),
+                              chunk_limit=args.chunk_limit),
     HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                            filter_item_func=lambda i: isinstance(i, IndexedEntity),
                            result_key="listed-entities"),

@@ -29,42 +29,58 @@ class DeepPavlovNERPipelineItem(BasePipelineItem):
         self.__disp_value_func = display_value_func
         self.__partitioning = Partitioning(text_fmt="list")
 
-    def __iter_subs_values_with_bounds(self, terms_list):
-        assert(isinstance(terms_list, list))
+    def __iter_subs_values_with_bounds(self, texts):
+        assert(isinstance(texts, list))
 
-        for chunk_start in range(0, len(terms_list), self.__chunk_limit):
-            single_sentence_chunk = [terms_list[chunk_start:chunk_start+self.__chunk_limit]]
+        chunk_offset = 0
 
-            # NOTE: in some cases, for example URL links or other long input words,
-            # the overall behavior might result in exceeding the assumed threshold.
-            # In order to completely prevent it, we consider to wrap the call
-            # of NER module into try-catch block.
-            try:
-                processed_sequences = self.__dp_ner.extract(sequences=single_sentence_chunk)
-            except RuntimeError:
-                processed_sequences = []
+        for text in texts:
+            assert(isinstance(text, list))
+            for chunk_start in range(0, len(text), self.__chunk_limit):
+                single_sentence_chunk = text[chunk_start:chunk_start + self.__chunk_limit]
 
-            entities_it = self.__iter_parsed_entities(processed_sequences,
-                                                      chunk_terms_list=single_sentence_chunk[0],
-                                                      chunk_offset=chunk_start)
+                # NOTE: in some cases, for example URL links or other long input words,
+                # the overall behavior might result in exceeding the assumed threshold.
+                # In order to completely prevent it, we consider to wrap the call
+                # of NER module into try-catch block.
+                try:
+                    data = self.__dp_ner.extract(sequences=[single_sentence_chunk])
+                except RuntimeError:
+                    data = None
 
-            for entity, bound in entities_it:
-                yield entity, bound
+                if data is not None:
+                    terms, descriptors = next(data)
+                    entities_it = self.__iter_parsed_entities(
+                        descriptors=descriptors, terms_list=terms, chunk_offset=chunk_offset)
+                else:
+                    terms = single_sentence_chunk
+                    entities_it = iter([])
 
-    def __iter_parsed_entities(self, processed_sequences, chunk_terms_list, chunk_offset):
-        for p_sequence in processed_sequences:
-            for s_obj in p_sequence:
-                assert (isinstance(s_obj, NerObjectDescriptor))
+                chunk_offset += len(terms)
+                yield terms, list(entities_it)
 
-                if self.__obj_filter is not None and not self.__obj_filter(s_obj):
-                    continue
+    def __iter_parsed_entities(self, descriptors, terms_list, chunk_offset):
+        for s_obj in descriptors:
+            assert (isinstance(s_obj, NerObjectDescriptor))
 
-                value = " ".join(chunk_terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
-                entity = IndexedEntity(
-                    value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id(),
-                    display_value=self.__disp_value_func(value) if self.__disp_value_func is not None else None)
-                yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
+            if self.__obj_filter is not None and not self.__obj_filter(s_obj):
+                continue
+
+            value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
+            entity = IndexedEntity(
+                value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id(),
+                display_value=self.__disp_value_func(value) if self.__disp_value_func is not None else None)
+            yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
 
     def apply_core(self, input_data, pipeline_ctx):
-        parts_it = self.__iter_subs_values_with_bounds(input_data)
-        return self.__partitioning.provide(text=input_data, parts_it=parts_it)
+        assert(isinstance(input_data, list))
+
+        parts_it = self.__iter_subs_values_with_bounds([input_data])
+
+        terms = []
+        bounds = []
+        for t, e in parts_it:
+            terms.extend(t)
+            bounds.extend(e)
+
+        return self.__partitioning.provide(text=terms, parts_it=bounds)
