@@ -32,8 +32,6 @@ class TestNerBatching(unittest.TestCase):
         for batch_size in range(len(texts)):
             start = time.time()
             for batch in BatchIterator(texts, batch_size=batch_size + 1):
-                a, b = self.__ner_model(batch)
-                for aa, bb in zip(a, b):
-                    print(len(aa), len(bb))
+                _ = self.__ner_model(batch)
             end = time.time()
             print(f"BS: {batch_size}", end - start)
