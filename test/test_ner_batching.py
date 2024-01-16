@@ -21,11 +21,19 @@ class TestNerBatching(unittest.TestCase):
             "As the spacecraft entered the orbit of Mars, Dr. Williams, a seasoned astronaut, marveled at the breathtaking Martian landscape unfolding before him.",
         ]
 
-        self.__ner_model = deeppavlov.build_model("ner_ontonotes_bert", download=True, install=True)
+        self.__ner_model = deeppavlov.build_model("ner_ontonotes_bert_mult", download=True, install=True)
+
+        texts = [t.split() for t in texts]
+        print("------")
+        for t in texts:
+            print(len(t))
+        print("------")
 
         for batch_size in range(len(texts)):
             start = time.time()
             for batch in BatchIterator(texts, batch_size=batch_size + 1):
-                _ = self.__ner_model(batch)
+                a, b = self.__ner_model(batch)
+                for aa, bb in zip(a, b):
+                    print(len(aa), len(bb))
             end = time.time()
             print(f"BS: {batch_size}", end - start)
