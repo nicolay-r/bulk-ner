@@ -1,6 +1,6 @@
 import unittest
 
-from arekit.common.pipeline.base import BasePipelineLauncher
+from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.utils import split_by_whitespaces
 
@@ -33,9 +33,9 @@ class TestTransformersNERPipeline(unittest.TestCase):
             HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
         ]
 
-        ctx = PipelineContext(d={"input": TestTransformersNERPipeline.text})
+        ctx = PipelineContext(d={"input": [TestTransformersNERPipeline.text]})
 
-        BasePipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ctx, src_key="input")
+        BatchingPipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ctx, src_key="input")
 
         print(ctx.provide("result"))
         print(ctx.provide("listed-entities"))

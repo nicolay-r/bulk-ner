@@ -1,10 +1,11 @@
 import argparse
 
 import pandas as pd
-from arekit.common.pipeline.base import BasePipelineLauncher
+from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.utils import split_by_whitespaces
 
+from src.batch_iter import BatchIterator
 from src.data_service import DataService
 from src.entity import IndexedEntity
 from src.json_service import JsonlService
@@ -14,11 +15,12 @@ from src.pipeline.entity_list import HandleListPipelineItem
 from src.utils import IdAssigner
 
 
-def iter_annotated_data(texts_it):
-    for text_index, p in texts_it:
-        ctx = BasePipelineLauncher.run(pipeline=pipeline,
-                                       pipeline_ctx=PipelineContext(d={"index": text_index, "input": p}),
-                                       src_key="input")
+def iter_annotated_data(texts_it, batch_size):
+    for batch in BatchIterator(texts_it, batch_size=batch_size):
+        index, input = zip(*batch)
+        ctx = BatchingPipelineLauncher.run(pipeline=pipeline,
+                                           pipeline_ctx=PipelineContext(d={"index": index, "input": input}),
+                                           src_key="input")
 
         # Target.
         d = ctx._d
@@ -38,6 +40,7 @@ parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
 parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
 parser.add_argument('--src', dest='src', type=str, default="./data/test.csv")
 parser.add_argument('--output', dest='output', type=str, default=None)
+parser.add_argument('--batch-size', dest='batch_size', type=int, default=5)
 parser.add_argument('--chunk-limit', dest='chunk_limit', type=int, default=128)
 
 args = parser.parse_args()
@@ -67,5 +70,5 @@ pipeline = [
 
 texts_it = input_formatters["csv"]()
 prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt)
-ctxs_it = iter_annotated_data(texts_it=prompts_it)
+ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
 output_formatters["jsonl"](dicts_it=ctxs_it)

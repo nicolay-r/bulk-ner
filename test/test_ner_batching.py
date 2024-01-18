@@ -1,7 +1,8 @@
 import time
 import unittest
 import deeppavlov
-from arekit.common.pipeline.utils import BatchIterator
+
+from src.batch_iter import BatchIterator
 
 
 class TestNerBatching(unittest.TestCase):
@@ -31,7 +32,7 @@ class TestNerBatching(unittest.TestCase):
 
         for batch_size in range(len(texts)):
             start = time.time()
-            for batch in BatchIterator(texts, batch_size=batch_size + 1):
+            for batch in BatchIterator(iter(texts), batch_size=batch_size + 1):
                 _ = self.__ner_model(batch)
             end = time.time()
             print(f"BS: {batch_size}", end - start)

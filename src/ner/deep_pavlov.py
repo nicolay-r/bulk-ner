@@ -10,7 +10,7 @@ class DeepPavlovNER(BaseNER):
         # Dynamic libraries import.
         deeppavlov = importlib.import_module("deeppavlov")
         build_model = deeppavlov.build_model
-        self.__ner_model = build_model(model_name, download=True, install=True)
+        self.__ner_model = build_model(model_name, download=True, install=False)
 
     # region Properties
 

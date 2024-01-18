@@ -2,10 +2,43 @@ from arekit.common.bound import Bound
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.text.partitioning import Partitioning
 
+from src.batch_iter import BatchIterator
 from src.entity import IndexedEntity
 from src.ner.deep_pavlov import DeepPavlovNER
 from src.ner.obj_desc import NerObjectDescriptor
 from src.utils import IdAssigner
+
+
+class ChunkIterator:
+
+    def __init__(self, data_iter, batch_size, chunk_limit):
+        assert(isinstance(batch_size, int) and batch_size > 0)
+        self.__data_iter = data_iter
+        self.__index = -1
+        self.__batch_size = batch_size
+        self.__chunk_limit = chunk_limit
+        self.__buffer = []
+
+    def __iter__(self):
+        return self
+
+    def __next__(self):
+        while True:
+            if len(self.__buffer) > 0:
+                break
+            try:
+                data = next(self.__data_iter)
+                self.__index += 1
+            except StopIteration:
+                break
+            for chunk_start in range(0, len(data), self.__chunk_limit):
+                chunk = data[chunk_start:chunk_start + self.__chunk_limit]
+                self.__buffer.append([self.__index, chunk])
+
+        if len(self.__buffer) > 0:
+            return self.__buffer.pop(0)
+
+        raise StopIteration
 
 
 class DeepPavlovNERPipelineItem(BasePipelineItem):
@@ -29,35 +62,34 @@ class DeepPavlovNERPipelineItem(BasePipelineItem):
         self.__disp_value_func = display_value_func
         self.__partitioning = Partitioning(text_fmt="list")
 
-    def __iter_subs_values_with_bounds(self, texts):
-        assert(isinstance(texts, list))
+    @property
+    def SupportBatching(self):
+        return True
 
+    def __iter_subs_values_with_bounds(self, batch_it):
         chunk_offset = 0
+        handled_text_index = -1
+        for batch in batch_it:
+            text_indices, texts = zip(*batch)
 
-        for text in texts:
-            assert(isinstance(text, list))
-            for chunk_start in range(0, len(text), self.__chunk_limit):
-                single_sentence_chunk = text[chunk_start:chunk_start + self.__chunk_limit]
+            try:
+                data = self.__dp_ner.extract(sequences=list(texts))
+            except RuntimeError:
+                data = None
 
-                # NOTE: in some cases, for example URL links or other long input words,
-                # the overall behavior might result in exceeding the assumed threshold.
-                # In order to completely prevent it, we consider to wrap the call
-                # of NER module into try-catch block.
-                try:
-                    data = self.__dp_ner.extract(sequences=[single_sentence_chunk])
-                except RuntimeError:
-                    data = None
-
-                if data is not None:
-                    terms, descriptors = next(data)
+            if data is not None:
+                for i, d in enumerate(data):
+                    terms, descriptors = d
+                    if text_indices[i] != handled_text_index:
+                        chunk_offset = 0
                     entities_it = self.__iter_parsed_entities(
                         descriptors=descriptors, terms_list=terms, chunk_offset=chunk_offset)
-                else:
-                    terms = single_sentence_chunk
-                    entities_it = iter([])
-
-                chunk_offset += len(terms)
-                yield terms, list(entities_it)
+                    handled_text_index = text_indices[i]
+                    chunk_offset += len(terms)
+                    yield text_indices[i], terms, list(entities_it)
+            else:
+                for i in range(len(batch)):
+                    yield text_indices[i], texts[i], []
 
     def __iter_parsed_entities(self, descriptors, terms_list, chunk_offset):
         for s_obj in descriptors:
@@ -75,12 +107,18 @@ class DeepPavlovNERPipelineItem(BasePipelineItem):
     def apply_core(self, input_data, pipeline_ctx):
         assert(isinstance(input_data, list))
 
-        parts_it = self.__iter_subs_values_with_bounds([input_data])
+        batch_size = len(input_data)
 
-        terms = []
-        bounds = []
-        for t, e in parts_it:
-            terms.extend(t)
-            bounds.extend(e)
+        c_it = ChunkIterator(iter(input_data), batch_size=batch_size, chunk_limit=self.__chunk_limit)
+        b_it = BatchIterator(c_it, batch_size=batch_size)
 
-        return self.__partitioning.provide(text=terms, parts_it=bounds)
+        parts_it = self.__iter_subs_values_with_bounds(b_it)
+
+        terms = [[] for _ in range(batch_size)]
+        bounds = [[] for _ in range(batch_size)]
+        for i, t, e in parts_it:
+            terms[i].extend(t)
+            bounds[i].extend(e)
+
+        for i in range(batch_size):
+            yield self.__partitioning.provide(text=terms[i], parts_it=bounds[i])
