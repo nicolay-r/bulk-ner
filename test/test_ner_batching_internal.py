@@ -36,7 +36,7 @@ def predict_on_stream(config: Union[str, Path, dict], get_batch_func) -> None:
 
 class TestNerBatching(unittest.TestCase):
 
-    def test_2(self):
+    def test_predict_stream_call(self):
         batch_size = 4
         batch_it = BatchIterator(iter(TEXTS), batch_size=batch_size, end_value=lambda: None)
         for data in predict_on_stream("ner_ontonotes_bert_mult", get_batch_func=lambda: next(batch_it)):
