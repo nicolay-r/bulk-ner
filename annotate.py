@@ -6,13 +6,11 @@ from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.utils import BatchIterator
 from arekit.common.utils import split_by_whitespaces
 
-from src.data_service import DataService
 from src.entity import IndexedEntity
-from src.json_service import JsonlService
-from src.pandas_service import PandasService
 from src.pipeline.dp import DeepPavlovNERPipelineItem
 from src.pipeline.entity_list import HandleListPipelineItem
-from src.utils import IdAssigner
+from src.service import JsonlService, PandasService, DataService
+from src.utils import IdAssigner, iter_params
 
 
 def iter_annotated_data(texts_it, batch_size):
@@ -70,6 +68,6 @@ pipeline = [
 ]
 
 texts_it = input_formatters["csv"]()
-prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt)
+prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
 ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
 output_formatters["jsonl"](dicts_it=ctxs_it)

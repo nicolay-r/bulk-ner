@@ -21,12 +21,3 @@ def iter_params(text):
         # Yield argument.
         yield text[pb+1:pe]
         beg = pe+1
-
-
-def format_model_name(name):
-    return name.replace("/", "_")
-
-
-def iter_with_ids(content_it):
-    for item_id, item in enumerate(content_it):
-        yield item_id, item
