@@ -15,7 +15,7 @@ pip install -r dependencies.txt
 ## Annotating texts
 
 ```bash
-python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert"
+python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert" --batch-size 10
 ```
 
 ## Powered by
