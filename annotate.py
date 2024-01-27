@@ -29,7 +29,8 @@ def iter_annotated_data(texts_it, batch_size):
         for m in args.del_meta:
             del d[m]
 
-        yield d
+        for batch_ind in range(len(d["input"])):
+            yield {k: v[batch_ind] for k, v in d.items()}
 
 
 parser = argparse.ArgumentParser(description="Apply NER annotation")
