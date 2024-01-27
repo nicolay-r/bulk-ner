@@ -3,9 +3,9 @@ import argparse
 import pandas as pd
 from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
+from arekit.common.pipeline.utils import BatchIterator
 from arekit.common.utils import split_by_whitespaces
 
-from src.batch_iter import BatchIterator
 from src.data_service import DataService
 from src.entity import IndexedEntity
 from src.json_service import JsonlService

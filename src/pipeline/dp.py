@@ -1,8 +1,8 @@
 from arekit.common.bound import Bound
 from arekit.common.pipeline.items.base import BasePipelineItem
+from arekit.common.pipeline.utils import BatchIterator
 from arekit.common.text.partitioning import Partitioning
 
-from src.batch_iter import BatchIterator
 from src.entity import IndexedEntity
 from src.ner.deep_pavlov import DeepPavlovNER
 from src.ner.obj_desc import NerObjectDescriptor

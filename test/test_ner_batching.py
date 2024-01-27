@@ -1,8 +1,8 @@
 import time
 import unittest
 import deeppavlov
+from arekit.common.pipeline.utils import BatchIterator
 
-from src.batch_iter import BatchIterator
 from data import TEXTS
 
 
