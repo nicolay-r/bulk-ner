@@ -3,12 +3,14 @@
 ![](https://img.shields.io/badge/AREkit-0.25.0-orange.svg)
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ner-service/blob/main/NER_annotation_service.ipynb)
 
-A fast inference implementation for Named Entity Recognition (NER) service of wrapped AI models powered by 
-[AREkit text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
+A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models powered by 
+[AREkit](https://github.com/nicolay-r/AREkit) and the related [text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
+
+> ⚠️ **Limitation:** at present this framework has an embedded support of [DeepPavlov](https://github.com/deeppavlov/DeepPavlov) NER models
 
 The key benefits of this tiny framework are as follows:
 1. ☑️ Native support of batching;
-2. ☑️ Native long-input contexts hanling.
+2. ☑️ Native long-input contexts handling.
 
 # Installation
 
@@ -21,6 +23,8 @@ pip install -r dependencies.txt
 ```bash
 python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert" --batch-size 10
 ```
+
+List of the supported models is available here: https://docs.deeppavlov.ai/en/master/features/models/NER.html
 
 ## Powered by
 
