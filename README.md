@@ -6,13 +6,17 @@
 A fast inference implementation for Named Entity Recognition (NER) service of wrapped AI models powered by 
 [AREkit text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
 
-# Usage
+The key benefits of this tiny framework are as follows:
+1. ☑️ Native support of batching;
+2. ☑️ Native long-input contexts hanling.
+
+# Installation
 
 ```bash
 pip install -r dependencies.txt
 ```
 
-## Annotating texts
+# Usage
 
 ```bash
 python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert" --batch-size 10
