@@ -21,7 +21,7 @@ pip install git+https://github.com/nicolay-r/fast-ner@main
 This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models:
 
 ```bash
-python annotate.py \
+python -m fast_ner.annotate \
     --src "test/data/test.csv" \
     --prompt "{text}" \
     --batch-size 10 \

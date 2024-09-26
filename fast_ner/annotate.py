@@ -1,17 +1,18 @@
 import argparse
 import os
 import sys
-
 import pandas as pd
+
 from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.utils import BatchIterator
+
+from fast_ner.src.entity import IndexedEntity
+from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
+from fast_ner.src.service import JsonlService, PandasService, DataService
 from fast_ner.src.service_args import CmdArgsService
 from fast_ner.src.service_dynamic import dynamic_init
-from src.entity import IndexedEntity
-from src.pipeline.entity_list import HandleListPipelineItem
-from src.service import JsonlService, PandasService, DataService
-from src.utils import IdAssigner, iter_params
+from fast_ner.src.utils import IdAssigner, iter_params
 
 
 def iter_annotated_data(texts_it, batch_size):
