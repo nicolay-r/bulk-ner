@@ -12,7 +12,7 @@ from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
 from fast_ner.src.service import JsonlService, DataService, CsvService
 from fast_ner.src.service_args import CmdArgsService
 from fast_ner.src.service_dynamic import dynamic_init
-from fast_ner.src.utils import IdAssigner, iter_params
+from fast_ner.src.utils import IdAssigner, iter_params, parse_filepath
 
 
 def iter_annotated_data(texts_it, batch_size):
@@ -58,8 +58,9 @@ if __name__ == '__main__':
         args.output = ".".join(args.src.split('.')[:-1]) + "-converted.jsonl"
 
     input_formatters = {
-        "csv": lambda: CsvService.read(target=args.src, row_id_key=None, delimiter=args.csv_sep,
-                                       as_dict=True, skip_header=True, escapechar=args.csv_escape_char)
+        "csv": lambda filepath: CsvService.read(target=filepath, delimiter=args.csv_sep,
+                                                as_dict=True, skip_header=True, escapechar=args.csv_escape_char),
+        "jsonl": lambda filepath: JsonlService.read_lines(src=filepath)
     }
 
     output_formatters = {
@@ -94,7 +95,8 @@ if __name__ == '__main__':
         HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
     ]
 
-    texts_it = input_formatters["csv"]()
+    _, src_ext, _ = parse_filepath(args.src)
+    texts_it = input_formatters[src_ext](args.src)
     prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
     ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
-    output_formatters["jsonl"](dicts_it=tqdm(ctxs_it))
+    output_formatters["jsonl"](dicts_it=tqdm(ctxs_it, desc=f"Processing `{args.src}`"))

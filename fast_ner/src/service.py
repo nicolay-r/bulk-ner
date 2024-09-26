@@ -11,6 +11,17 @@ class JsonlService:
                 json.dump(line, fp=f, ensure_ascii=False)
                 f.write("\n")
 
+    @staticmethod
+    def read_lines(src, row_id_key=None):
+        assert (isinstance(src, str))
+        with open(src, "r") as f:
+            for line_ind, line in enumerate(f.readlines()):
+                content = json.loads(line)
+                if row_id_key is not None:
+                    content[row_id_key] = line_ind
+                print(content)
+                yield content
+
 
 class CsvService:
 
