@@ -27,7 +27,7 @@ python -m fast_ner.annotate \
     --batch-size 10 \
     --adapter "dynamic:models/dp_130.py:DeepPavlovNERPipelineItem" \
     %% \
-    --model "ner_ontonotes_bert"
+    --model "ner_ontonotes_bert_mult"
 ```
 
 List of the supported models is available here: https://docs.deeppavlov.ai/en/master/features/models/NER.html
