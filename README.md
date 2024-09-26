@@ -6,8 +6,6 @@
 A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models powered by 
 [AREkit](https://github.com/nicolay-r/AREkit) and the related [text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
 
-> ⚠️ **Limitation:** at present this framework has an embedded support of [DeepPavlov](https://github.com/deeppavlov/DeepPavlov) NER models
-
 The key benefits of this tiny framework are as follows:
 1. ☑️ Native support of batching;
 2. ☑️ Native long-input contexts handling.
@@ -15,13 +13,21 @@ The key benefits of this tiny framework are as follows:
 # Installation
 
 ```bash
-pip install -r dependencies.txt
+pip install git+https://github.com/nicolay-r/fast-ner@main
 ```
 
 # Usage
 
+This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models:
+
 ```bash
-python annotate.py --src "data/test.csv" --prompt "{text}" --model "ner_ontonotes_bert" --batch-size 10
+python annotate.py \
+    --src "test/data/test.csv" \
+    --prompt "{text}" \
+    --batch-size 10 \
+    --adapter "dynamic:models/dp_130.py:DeepPavlovNERPipelineItem" \
+    %% \
+    --model "ner_ontonotes_bert"
 ```
 
 List of the supported models is available here: https://docs.deeppavlov.ai/en/master/features/models/NER.html

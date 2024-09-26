@@ -7,8 +7,6 @@ from arekit.common.pipeline.utils import BatchIterator
 from deeppavlov import build_model, Chainer
 from deeppavlov.core.data.utils import jsonify_data
 
-from data import TEXTS
-
 
 def predict_on_stream(config: Union[str, Path, dict], get_batch_func) -> None:
     """Make a prediction with the component described in corresponding configuration file."""
@@ -38,6 +36,7 @@ class TestNerBatching(unittest.TestCase):
 
     def test_predict_stream_call(self):
         batch_size = 4
+        TEXTS = ["This is America and this is Europe"]
         batch_it = BatchIterator(iter(TEXTS), batch_size=batch_size, end_value=lambda: None)
         for data in predict_on_stream("ner_ontonotes_bert_mult", get_batch_func=lambda: next(batch_it)):
             print("---")

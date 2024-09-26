@@ -1,12 +1,33 @@
+# This is an adapter implementation for dp_130
+# deeppavlov==1.3.0
+
+
+import importlib
+
 from arekit.common.bound import Bound
 from arekit.common.pipeline.items.base import BasePipelineItem
 from arekit.common.pipeline.utils import BatchIterator
 from arekit.common.text.partitioning import Partitioning
 
-from src.entity import IndexedEntity
-from src.ner.deep_pavlov import DeepPavlovNER
-from src.ner.obj_desc import NerObjectDescriptor
-from src.utils import IdAssigner
+from fast_ner.src.entity import IndexedEntity
+from fast_ner.src.ner.base import BaseNER
+from fast_ner.src.ner.obj_desc import NerObjectDescriptor
+from fast_ner.src.utils import IdAssigner
+
+
+class DeepPavlovNER(BaseNER):
+
+    def __init__(self, model_name):
+
+        # Dynamic libraries import.
+        deeppavlov = importlib.import_module("deeppavlov")
+        build_model = deeppavlov.build_model
+        self.__ner_model = build_model(model_name, download=True, install=True)
+
+    # region Properties
+
+    def _forward(self, sequences):
+        return self.__ner_model(sequences)
 
 
 class ChunkIterator:

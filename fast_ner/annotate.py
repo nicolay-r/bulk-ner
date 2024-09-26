@@ -1,0 +1,97 @@
+import argparse
+import os
+import sys
+
+import pandas as pd
+from arekit.common.pipeline.batching import BatchingPipelineLauncher
+from arekit.common.pipeline.context import PipelineContext
+from arekit.common.pipeline.utils import BatchIterator
+from fast_ner.src.service_args import CmdArgsService
+from fast_ner.src.service_dynamic import dynamic_init
+from src.entity import IndexedEntity
+from src.pipeline.entity_list import HandleListPipelineItem
+from src.service import JsonlService, PandasService, DataService
+from src.utils import IdAssigner, iter_params
+
+
+def iter_annotated_data(texts_it, batch_size):
+    for batch in BatchIterator(texts_it, batch_size=batch_size):
+        index, input = zip(*batch)
+        ctx = BatchingPipelineLauncher.run(pipeline=pipeline,
+                                           pipeline_ctx=PipelineContext(d={"index": index, "input": input}),
+                                           src_key="input")
+
+        # Target.
+        d = ctx._d
+
+        # Removing meta-information.
+        for m in args.del_meta:
+            del d[m]
+
+        for batch_ind in range(len(d["input"])):
+            yield {k: v[batch_ind] for k, v in d.items()}
+
+
+CWD = os.getcwd()
+
+
+if __name__ == '__main__':
+
+    parser = argparse.ArgumentParser(description="Apply NER annotation")
+
+    parser.add_argument('--adapter', dest='adapter', type=str, default=None)
+    parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
+    parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
+    parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
+    parser.add_argument('--src', dest='src', type=str, default=None)
+    parser.add_argument('--output', dest='output', type=str, default=None)
+    parser.add_argument('--batch-size', dest='batch_size', type=int, default=5)
+    
+    native_args, model_args = CmdArgsService.partition_list(lst=sys.argv, sep="%%")
+
+    args = parser.parse_args(args=native_args[1:])
+
+    # Provide the default output.
+    if args.output is None:
+        args.output = ".".join(args.src.split('.')[:-1]) + "-converted.jsonl"
+
+    input_formatters = {
+        "csv": lambda: PandasService.iter_rows_as_dict(df=pd.read_csv(args.src, sep=args.csv_sep))
+    }
+
+    output_formatters = {
+        "jsonl": lambda dicts_it: JsonlService.write(output=args.output, lines_it=dicts_it)
+    }
+
+    # Initialize NER model
+    models_preset = {
+        "dynamic": lambda: dynamic_init(src_dir=CWD, class_filepath=ner_model_name, class_name=ner_model_params)(
+            # We use IdAssigner just for the reason it is necessity here.
+            id_assigner=IdAssigner(),
+            # The rest of parameters could be provided from cmd.
+            **CmdArgsService.args_to_dict(args.model))
+    }
+
+    # Application of the NER for annotation texts.
+    pipeline = [
+        models_preset["dynamic"](),
+        HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
+                               filter_item_func=lambda i: isinstance(i, IndexedEntity),
+                               result_key="listed-entities"),
+        HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
+    ]
+
+    # Parse the model name.
+    params = args.adapter.split(':')
+
+    # Making sure that we refer to the supported preset.
+    assert(params[0] in models_preset)
+
+    # Completing the remaining parameters.
+    ner_model_name = params[1] if len(params) > 1 else params[-1]
+    ner_model_params = ':'.join(params[2:]) if len(params) > 2 else None
+
+    texts_it = input_formatters["csv"]()
+    prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
+    ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
+    output_formatters["jsonl"](dicts_it=ctxs_it)

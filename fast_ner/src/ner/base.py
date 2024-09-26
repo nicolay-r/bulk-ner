@@ -1,4 +1,4 @@
-from src.ner.obj_desc import NerObjectDescriptor
+from fast_ner.src.ner.obj_desc import NerObjectDescriptor
 
 
 class BaseNER(object):

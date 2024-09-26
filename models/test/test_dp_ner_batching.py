@@ -3,14 +3,14 @@ import unittest
 import deeppavlov
 from arekit.common.pipeline.utils import BatchIterator
 
-from data import TEXTS
-
 
 class TestNerBatching(unittest.TestCase):
 
     def test(self):
 
         self.__ner_model = deeppavlov.build_model("ner_ontonotes_bert_mult", download=True, install=True)
+
+        TEXTS = ["This is America and this is Europe"]
 
         texts = [t.split() for t in TEXTS]
         print("------")
