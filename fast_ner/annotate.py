@@ -12,7 +12,7 @@ from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
 from fast_ner.src.service import JsonlService, DataService, CsvService
 from fast_ner.src.service_args import CmdArgsService
 from fast_ner.src.service_dynamic import dynamic_init
-from fast_ner.src.utils import IdAssigner, iter_params, parse_filepath
+from fast_ner.src.utils import IdAssigner, iter_params, parse_filepath, test_ner_demo
 
 
 def iter_annotated_data(texts_it, batch_size):
@@ -54,10 +54,12 @@ if __name__ == '__main__':
     args = parser.parse_args(args=native_args[1:])
 
     # Provide the default output.
-    if args.output is None:
+    if args.output is None and args.src is not None:
         args.output = ".".join(args.src.split('.')[:-1]) + "-converted.jsonl"
 
     input_formatters = {
+        None: lambda _: test_ner_demo(
+            iter_answers=lambda example: iter_annotated_data(texts_it=iter([(0, example)]), batch_size=1)),
         "csv": lambda filepath: CsvService.read(target=filepath, delimiter=args.csv_sep,
                                                 as_dict=True, skip_header=True, escapechar=args.csv_escape_char),
         "jsonl": lambda filepath: JsonlService.read_lines(src=filepath)
@@ -97,6 +99,11 @@ if __name__ == '__main__':
 
     _, src_ext, _ = parse_filepath(args.src)
     texts_it = input_formatters[src_ext](args.src)
+
+    # There is no need to perform export.
+    if src_ext is None:
+        exit(0)
+
     prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
     ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
     output_formatters["jsonl"](dicts_it=tqdm(ctxs_it, desc=f"Processing `{args.src}`"))

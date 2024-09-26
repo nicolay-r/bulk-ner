@@ -33,3 +33,18 @@ def parse_filepath(filepath, default_filepath=None, default_ext=None):
     meta = info[1] if len(info) > 1 else None
     ext = filepath.split('.')[-1] if default_ext is None else default_ext
     return filepath, ext, meta
+
+
+def test_ner_demo(iter_answers=None):
+
+    while True:
+
+        user_input = input(f"Enter your text "
+                           f"(or 'exit' to quit): ")
+
+        if user_input.lower() == 'exit':
+            break
+
+        # Finally asking LLM.
+        for a in iter_answers(user_input):
+            print(a)
