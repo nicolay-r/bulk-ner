@@ -26,7 +26,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
         pipeline = [
             dynamic_init(src_dir=join(TestTransformersNERPipeline.CURRENT_DIR, "../models"),
                          class_filepath="dp_130.py",
-                         class_name="DeepPavlovNERPipelineItem")(ner_model_name="ner_ontonotes_bert",
+                         class_name="DeepPavlovNERPipelineItem")(model="ner_ontonotes_bert",
                                                                  id_assigner=IdAssigner()),
             HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                                    filter_item_func=lambda i: isinstance(i, IndexedEntity),

@@ -64,7 +64,7 @@ class ChunkIterator:
 
 class DeepPavlovNERPipelineItem(BasePipelineItem):
 
-    def __init__(self, id_assigner, ner_model_name, obj_filter=None,
+    def __init__(self, id_assigner, model, obj_filter=None,
                  chunk_limit=128, display_value_func=None, **kwargs):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
@@ -76,7 +76,7 @@ class DeepPavlovNERPipelineItem(BasePipelineItem):
         super(DeepPavlovNERPipelineItem, self).__init__(**kwargs)
 
         # Initialize bert-based model instance.
-        self.__dp_ner = DeepPavlovNER(ner_model_name)
+        self.__dp_ner = DeepPavlovNER(model)
         self.__obj_filter = obj_filter
         self.__chunk_limit = chunk_limit
         self.__id_assigner = id_assigner
