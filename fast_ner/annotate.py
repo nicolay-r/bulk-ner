@@ -73,15 +73,6 @@ if __name__ == '__main__':
             **CmdArgsService.args_to_dict(args.model))
     }
 
-    # Application of the NER for annotation texts.
-    pipeline = [
-        models_preset["dynamic"](),
-        HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
-                               filter_item_func=lambda i: isinstance(i, IndexedEntity),
-                               result_key="listed-entities"),
-        HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
-    ]
-
     # Parse the model name.
     params = args.adapter.split(':')
 
@@ -91,6 +82,15 @@ if __name__ == '__main__':
     # Completing the remaining parameters.
     ner_model_name = params[1] if len(params) > 1 else params[-1]
     ner_model_params = ':'.join(params[2:]) if len(params) > 2 else None
+
+    # Application of the NER for annotation texts.
+    pipeline = [
+        models_preset["dynamic"](),
+        HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
+                               filter_item_func=lambda i: isinstance(i, IndexedEntity),
+                               result_key="listed-entities"),
+        HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
+    ]
 
     texts_it = input_formatters["csv"]()
     prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
