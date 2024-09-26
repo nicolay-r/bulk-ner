@@ -1,7 +1,7 @@
 import argparse
 import os
 import sys
-import pandas as pd
+from tqdm import tqdm
 
 from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
@@ -9,7 +9,7 @@ from arekit.common.pipeline.utils import BatchIterator
 
 from fast_ner.src.entity import IndexedEntity
 from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
-from fast_ner.src.service import JsonlService, PandasService, DataService
+from fast_ner.src.service import JsonlService, DataService, CsvService
 from fast_ner.src.service_args import CmdArgsService
 from fast_ner.src.service_dynamic import dynamic_init
 from fast_ner.src.utils import IdAssigner, iter_params
@@ -43,6 +43,7 @@ if __name__ == '__main__':
     parser.add_argument('--adapter', dest='adapter', type=str, default=None)
     parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
     parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
+    parser.add_argument('--csv-escape-char', dest='csv_escape_char', type=str, default=None)
     parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
     parser.add_argument('--src', dest='src', type=str, default=None)
     parser.add_argument('--output', dest='output', type=str, default=None)
@@ -57,7 +58,8 @@ if __name__ == '__main__':
         args.output = ".".join(args.src.split('.')[:-1]) + "-converted.jsonl"
 
     input_formatters = {
-        "csv": lambda: PandasService.iter_rows_as_dict(df=pd.read_csv(args.src, sep=args.csv_sep))
+        "csv": lambda: CsvService.read(target=args.src, row_id_key=None, delimiter=args.csv_sep,
+                                       as_dict=True, skip_header=True, escapechar=args.csv_escape_char)
     }
 
     output_formatters = {
@@ -95,4 +97,4 @@ if __name__ == '__main__':
     texts_it = input_formatters["csv"]()
     prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
     ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
-    output_formatters["jsonl"](dicts_it=ctxs_it)
+    output_formatters["jsonl"](dicts_it=tqdm(ctxs_it))
