@@ -70,7 +70,7 @@ if __name__ == '__main__':
             # We use IdAssigner just for the reason it is necessity here.
             id_assigner=IdAssigner(),
             # The rest of parameters could be provided from cmd.
-            **CmdArgsService.args_to_dict(args.model))
+            **CmdArgsService.args_to_dict(model_args))
     }
 
     # Parse the model name.
