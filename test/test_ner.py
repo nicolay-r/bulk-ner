@@ -5,6 +5,7 @@ from arekit.common.pipeline.context import PipelineContext
 
 from fast_ner.src.entity import IndexedEntity
 from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
+from fast_ner.src.pipeline.ner import NERPipelineItem
 from fast_ner.src.service_dynamic import dynamic_init
 from fast_ner.src.utils import IdAssigner
 
@@ -23,11 +24,12 @@ class TestTransformersNERPipeline(unittest.TestCase):
 
     def test_benchmark(self):
 
+        ner_model = dynamic_init(src_dir=join(TestTransformersNERPipeline.CURRENT_DIR, "../models"),
+                                 class_filepath="dp_130.py",
+                                 class_name="DeepPavlovNER")(model="ner_ontonotes_bert")
+
         pipeline = [
-            dynamic_init(src_dir=join(TestTransformersNERPipeline.CURRENT_DIR, "../models"),
-                         class_filepath="dp_130.py",
-                         class_name="DeepPavlovNERPipelineItem")(model="ner_ontonotes_bert",
-                                                                 id_assigner=IdAssigner()),
+            NERPipelineItem(id_assigner=IdAssigner(), model=ner_model, chunk_limit=128),
             HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                                    filter_item_func=lambda i: isinstance(i, IndexedEntity),
                                    result_key="listed-entities"),

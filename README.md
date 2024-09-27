@@ -25,7 +25,7 @@ python -m fast_ner.annotate \
     --src "test/data/test.csv" \
     --prompt "{text}" \
     --batch-size 10 \
-    --adapter "dynamic:models/dp_130.py:DeepPavlovNERPipelineItem" \
+    --adapter "dynamic:models/dp_130.py:DeepPavlovNER" \
     %% \
     --model "ner_ontonotes_bert_mult"
 ```

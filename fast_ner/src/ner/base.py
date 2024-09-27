@@ -27,6 +27,9 @@ class BaseNER(object):
             yield seq, descriptors
 
     def _forward(self, seqences):
+        """ This function is expected to return list of terms
+            alongside with the list of labels in CONLL format.
+        """
         raise NotImplementedError()
 
     # region private methods

@@ -9,6 +9,7 @@ from arekit.common.pipeline.utils import BatchIterator
 
 from fast_ner.src.entity import IndexedEntity
 from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
+from fast_ner.src.pipeline.ner import NERPipelineItem
 from fast_ner.src.service import JsonlService, DataService, CsvService
 from fast_ner.src.service_args import CmdArgsService
 from fast_ner.src.service_dynamic import dynamic_init
@@ -48,7 +49,8 @@ if __name__ == '__main__':
     parser.add_argument('--src', dest='src', type=str, default=None)
     parser.add_argument('--output', dest='output', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=5)
-    
+    parser.add_argument('--chunk-limit', dest='chunk_limit', type=int, default=128)
+
     native_args, model_args = CmdArgsService.partition_list(lst=sys.argv, sep="%%")
 
     args = parser.parse_args(args=native_args[1:])
@@ -72,8 +74,6 @@ if __name__ == '__main__':
     # Initialize NER model
     models_preset = {
         "dynamic": lambda: dynamic_init(src_dir=CWD, class_filepath=ner_model_name, class_name=ner_model_params)(
-            # We use IdAssigner just for the reason it is necessity here.
-            id_assigner=IdAssigner(),
             # The rest of parameters could be provided from cmd.
             **CmdArgsService.args_to_dict(model_args))
     }
@@ -90,7 +90,9 @@ if __name__ == '__main__':
 
     # Application of the NER for annotation texts.
     pipeline = [
-        models_preset["dynamic"](),
+        NERPipelineItem(id_assigner=IdAssigner(),
+                        model=models_preset["dynamic"](),
+                        chunk_limit=args.chunk_limit),
         HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
                                filter_item_func=lambda i: isinstance(i, IndexedEntity),
                                result_key="listed-entities"),
