@@ -7,13 +7,13 @@ from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
 from arekit.common.pipeline.utils import BatchIterator
 
-from fast_ner.src.entity import IndexedEntity
-from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
-from fast_ner.src.pipeline.ner import NERPipelineItem
-from fast_ner.src.service import JsonlService, DataService, CsvService
-from fast_ner.src.service_args import CmdArgsService
-from fast_ner.src.service_dynamic import dynamic_init
-from fast_ner.src.utils import IdAssigner, iter_params, parse_filepath, test_ner_demo
+from bulk_ner.src.entity import IndexedEntity
+from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
+from bulk_ner.src.pipeline.ner import NERPipelineItem
+from bulk_ner.src.service import JsonlService, DataService, CsvService
+from bulk_ner.src.service_args import CmdArgsService
+from bulk_ner.src.service_dynamic import dynamic_init
+from bulk_ner.src.utils import IdAssigner, iter_params, parse_filepath, test_ner_demo
 
 
 def iter_annotated_data(texts_it, batch_size):

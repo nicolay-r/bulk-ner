@@ -2,7 +2,7 @@
 # deeppavlov==1.3.0
 
 import importlib
-from fast_ner.src.ner.base import BaseNER
+from bulk_ner.src.ner.base import BaseNER
 
 
 class DeepPavlovNER(BaseNER):

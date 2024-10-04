@@ -3,11 +3,11 @@ from os.path import dirname, realpath, join
 from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
 
-from fast_ner.src.entity import IndexedEntity
-from fast_ner.src.pipeline.entity_list import HandleListPipelineItem
-from fast_ner.src.pipeline.ner import NERPipelineItem
-from fast_ner.src.service_dynamic import dynamic_init
-from fast_ner.src.utils import IdAssigner
+from bulk_ner.src.entity import IndexedEntity
+from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
+from bulk_ner.src.pipeline.ner import NERPipelineItem
+from bulk_ner.src.service_dynamic import dynamic_init
+from bulk_ner.src.utils import IdAssigner
 
 
 class TestTransformersNERPipeline(unittest.TestCase):
