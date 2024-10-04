@@ -1,1 +1,1 @@
-arekit @ git+https://github.com/nicolay-r/AREkit@0.25.0-rc
+arekit==0.25.0
