@@ -13,7 +13,7 @@ The key benefits of this tiny framework are as follows:
 # Installation
 
 ```bash
-pip install git+https://github.com/nicolay-r/bulk-ner@main
+pip install bulk-ner==0.24.0
 ```
 
 # Usage
