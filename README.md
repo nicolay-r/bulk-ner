@@ -18,7 +18,7 @@ pip install bulk-ner==0.24.0
 
 # Usage
 
-This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models:
+This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models passed via `--adapter` parameter:
 
 ```bash
 python -m bulk_ner.annotate \
@@ -30,7 +30,20 @@ python -m bulk_ner.annotate \
     --model "ner_ontonotes_bert_mult"
 ```
 
-List of the supported models is available here: https://docs.deeppavlov.ai/en/master/features/models/NER.html
+You can choose the other models via `--model` parameter.
+
+List of the supported models is available here: 
+https://docs.deeppavlov.ai/en/master/features/models/NER.html
+
+## Deploy your model
+
+> **Quick example**: Check out the [default DeepPavlov wrapper implementation](/models/dp_130.py)
+
+All you have to do is to implement the `BaseNER` class that has the following protected method:
+* `_forward(sequences)` -- expected to return two lists of the same length:
+    * `terms` -- related to the list of atomic elements of the text (usually words)
+    * `labels` -- B-I-O labels for each term.
+  
 
 ## Powered by
 
