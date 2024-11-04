@@ -31,7 +31,7 @@ python -m bulk_ner.annotate \
     --prompt "{text}" \
     --batch-size 10 \
     --adapter "dynamic:models/dp_130.py:DeepPavlovNER" \
-    --output "test-annotated.jsonl"
+    --output "test-annotated.jsonl" \
     %% \
     --model "ner_ontonotes_bert_mult"
 ```
