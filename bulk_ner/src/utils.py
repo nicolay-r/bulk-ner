@@ -1,3 +1,7 @@
+import logging
+import sys
+
+
 class IdAssigner(object):
 
     def __init__(self):
@@ -48,3 +52,22 @@ def test_ner_demo(iter_answers=None):
         # Finally asking LLM.
         for a in iter_answers(user_input):
             print(a)
+
+
+def setup_custom_logger(name, add_screen_handler=False, filepath=None):
+    formatter = logging.Formatter(fmt='%(asctime)s %(levelname)-8s %(message)s',
+                                  datefmt='%Y-%m-%d %H:%M:%S')
+    logger = logging.getLogger(name)
+    logger.setLevel(logging.INFO)
+
+    if add_screen_handler:
+        screen_handler = logging.StreamHandler(stream=sys.stdout)
+        screen_handler.setFormatter(formatter)
+        logger.addHandler(screen_handler)
+
+    if filepath is not None:
+        handler = logging.FileHandler(filepath, mode='w')
+        handler.setFormatter(formatter)
+        logger.addHandler(handler)
+
+    return logger

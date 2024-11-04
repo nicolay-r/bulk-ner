@@ -1,7 +1,11 @@
 import argparse
 import os
 import sys
+
 from tqdm import tqdm
+
+from source_iter.service_csv import CsvService
+from source_iter.service_jsonl import JsonlService
 
 from arekit.common.pipeline.batching import BatchingPipelineLauncher
 from arekit.common.pipeline.context import PipelineContext
@@ -10,10 +14,10 @@ from arekit.common.pipeline.utils import BatchIterator
 from bulk_ner.src.entity import IndexedEntity
 from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
 from bulk_ner.src.pipeline.ner import NERPipelineItem
-from bulk_ner.src.service import JsonlService, DataService, CsvService
 from bulk_ner.src.service_args import CmdArgsService
 from bulk_ner.src.service_dynamic import dynamic_init
-from bulk_ner.src.utils import IdAssigner, iter_params, parse_filepath, test_ner_demo
+from bulk_ner.src.service_prompt import DataService
+from bulk_ner.src.utils import IdAssigner, iter_params, parse_filepath, test_ner_demo, setup_custom_logger
 
 
 def iter_annotated_data(texts_it, batch_size):
@@ -38,13 +42,13 @@ CWD = os.getcwd()
 
 
 if __name__ == '__main__':
+    
+    logger = setup_custom_logger("bulk-ner")
 
     parser = argparse.ArgumentParser(description="Apply NER annotation")
 
     parser.add_argument('--adapter', dest='adapter', type=str, default=None)
     parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
-    parser.add_argument('--csv-sep', dest='csv_sep', type=str, default='\t')
-    parser.add_argument('--csv-escape-char', dest='csv_escape_char', type=str, default=None)
     parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
     parser.add_argument('--src', dest='src', type=str, default=None)
     parser.add_argument('--output', dest='output', type=str, default=None)
@@ -52,6 +56,7 @@ if __name__ == '__main__':
     parser.add_argument('--chunk-limit', dest='chunk_limit', type=int, default=128)
 
     native_args, model_args = CmdArgsService.partition_list(lst=sys.argv, sep="%%")
+    custom_args_dict = CmdArgsService.args_to_dict(model_args)
 
     args = parser.parse_args(args=native_args[1:])
 
@@ -62,20 +67,24 @@ if __name__ == '__main__':
     input_formatters = {
         None: lambda _: test_ner_demo(
             iter_answers=lambda example: iter_annotated_data(texts_it=iter([(0, example)]), batch_size=1)),
-        "csv": lambda filepath: CsvService.read(target=filepath, delimiter=args.csv_sep,
-                                                as_dict=True, skip_header=True, escapechar=args.csv_escape_char),
-        "jsonl": lambda filepath: JsonlService.read_lines(src=filepath)
+        "csv": lambda filepath: CsvService.read(src=filepath, as_dict=True, skip_header=True,
+                                                delimiter=custom_args_dict.get("delimiter", ","),
+                                                escapechar=custom_args_dict.get("escapechar", None)),
+        "tsv": lambda filepath: CsvService.read(src=filepath, as_dict=True, skip_header=True,
+                                                delimiter=custom_args_dict.get("delimiter", "\t"),
+                                                escapechar=custom_args_dict.get("escapechar", None)),
+        "jsonl": lambda filepath: JsonlService.read(src=filepath)
     }
 
     output_formatters = {
-        "jsonl": lambda dicts_it: JsonlService.write(output=args.output, lines_it=dicts_it)
+        "jsonl": lambda dicts_it: JsonlService.write(target=args.output, data_it=dicts_it)
     }
 
     # Initialize NER model
     models_preset = {
         "dynamic": lambda: dynamic_init(src_dir=CWD, class_filepath=ner_model_name, class_name=ner_model_params)(
             # The rest of parameters could be provided from cmd.
-            **CmdArgsService.args_to_dict(model_args))
+            **custom_args_dict)
     }
 
     # Parse the model name.
@@ -109,3 +118,5 @@ if __name__ == '__main__':
     prompts_it = DataService.iter_prompt(data_dict_it=texts_it, prompt=args.prompt, parse_fields_func=iter_params)
     ctxs_it = iter_annotated_data(texts_it=prompts_it, batch_size=args.batch_size)
     output_formatters["jsonl"](dicts_it=tqdm(ctxs_it, desc=f"Processing `{args.src}`"))
+
+    logger.info(f"Saved: {args.output}")

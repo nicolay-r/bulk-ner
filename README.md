@@ -1,4 +1,4 @@
-# bulk-ner 
+# bulk-ner 0.24.1 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.25.0-orange.svg)
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ner-service/blob/main/NER_annotation_service.ipynb)
@@ -18,7 +18,7 @@ The key benefits of this tiny framework are as follows:
 # Installation
 
 ```bash
-pip install bulk-ner==0.24.0
+pip install bulk-ner==0.24.1
 ```
 
 # Usage
@@ -27,10 +27,11 @@ This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models pa
 
 ```bash
 python -m bulk_ner.annotate \
-    --src "test/data/test.csv" \
+    --src "test/data/test.tsv" \
     --prompt "{text}" \
     --batch-size 10 \
     --adapter "dynamic:models/dp_130.py:DeepPavlovNER" \
+    --output "test-annotated.jsonl"
     %% \
     --model "ner_ontonotes_bert_mult"
 ```
