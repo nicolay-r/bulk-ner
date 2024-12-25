@@ -24,6 +24,14 @@ pip install bulk-ner==0.25.0
 
 # Usage
 
+## API
+
+Please take a look at the [**related Wiki page**](https://github.com/nicolay-r/bulk-chain/wiki)
+
+## Shell
+
+> **NOTE:** You have to install `source-iter` package
+
 This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models passed via `--adapter` parameter:
 
 ```bash
