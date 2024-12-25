@@ -1,4 +1,4 @@
-# bulk-ner 0.24.1 
+# bulk-ner 0.25.0 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
 ![](https://img.shields.io/badge/AREkit-0.25.0-orange.svg)
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ner-service/blob/main/NER_annotation_service.ipynb)
@@ -19,7 +19,7 @@ The key benefits of this tiny framework are as follows:
 # Installation
 
 ```bash
-pip install bulk-ner==0.24.1
+pip install bulk-ner==0.25.0
 ```
 
 # Usage

@@ -1,13 +1,8 @@
 import unittest
 from os.path import dirname, realpath, join
-from arekit.common.pipeline.batching import BatchingPipelineLauncher
-from arekit.common.pipeline.context import PipelineContext
 
-from bulk_ner.src.entity import IndexedEntity
-from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
-from bulk_ner.src.pipeline.ner import NERPipelineItem
+from bulk_ner.api import NERAnnotator
 from bulk_ner.src.service_dynamic import dynamic_init
-from bulk_ner.src.utils import IdAssigner
 
 
 class TestTransformersNERPipeline(unittest.TestCase):
@@ -28,17 +23,12 @@ class TestTransformersNERPipeline(unittest.TestCase):
                                  class_filepath="dp_130.py",
                                  class_name="DeepPavlovNER")(model="ner_ontonotes_bert")
 
-        pipeline = [
-            NERPipelineItem(id_assigner=IdAssigner(), model=ner_model, chunk_limit=128),
-            HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
-                                   filter_item_func=lambda i: isinstance(i, IndexedEntity),
-                                   result_key="listed-entities"),
-            HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
-        ]
+        annotator = NERAnnotator(ner_model=ner_model,
+                                 chunk_limit=128)
 
-        ctx = PipelineContext(d={"input": [TestTransformersNERPipeline.text]})
-
-        BatchingPipelineLauncher.run(pipeline=pipeline, pipeline_ctx=ctx, src_key="input")
-
-        print(ctx.provide("result"))
-        print(ctx.provide("listed-entities"))
+        data_it = annotator.iter_annotated_data(
+            data_dict_it=[{"text": [TestTransformersNERPipeline.text]}],
+            prompt="{text}")
+        
+        for d in data_it:
+            print(d)
