@@ -6,6 +6,7 @@ from arekit.common.pipeline.utils import BatchIterator
 
 from bulk_ner.src.entity import IndexedEntity
 from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
+from bulk_ner.src.pipeline.merge import MergeTextEntries
 from bulk_ner.src.pipeline.ner import NERPipelineItem
 from bulk_ner.src.service_prompt import DataService
 from bulk_ner.src.utils import IdAssigner, iter_params
@@ -16,15 +17,14 @@ CWD = os.getcwd()
 
 class NERAnnotator(object):
 
-    def __init__(self, ner_model, chunk_limit):
+    def __init__(self, ner_model, chunk_limit, do_merge_terms=True):
         self.pipeline = [
             NERPipelineItem(id_assigner=IdAssigner(),
                             model=ner_model,
                             chunk_limit=chunk_limit),
-            HandleListPipelineItem(map_item_func=lambda i, e: (i, e.Type, e.Value),
-                                   filter_item_func=lambda i: isinstance(i, IndexedEntity),
-                                   result_key="listed-entities"),
-            HandleListPipelineItem(map_item_func=lambda _, t: f"[{t.Type}]" if isinstance(t, IndexedEntity) else t),
+            HandleListPipelineItem(
+                map_item_func=lambda _, t: [t.Value, t.Type, t.ID] if isinstance(t, IndexedEntity) else t),
+            MergeTextEntries() if do_merge_terms else None
         ]
 
     def iter_annotated_data(self, data_dict_it, prompt, batch_size=1):
