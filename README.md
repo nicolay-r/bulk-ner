@@ -62,7 +62,7 @@ All you have to do is to implement the `BaseNER` class that has the following pr
 
 ## Powered by
 
-* AREkit [[github]](https://github.com/nicolay-r/AREkit)
+The pipeline construction components were taken from AREkit [[github]](https://github.com/nicolay-r/AREkit)
 
 <p float="left">
 <a href="https://github.com/nicolay-r/AREkit"><img src="https://github.com/nicolay-r/ARElight/assets/14871187/01232f7a-970f-416c-b7a4-1cda48506afe"/></a>
