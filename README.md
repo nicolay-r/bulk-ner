@@ -26,7 +26,7 @@ pip install bulk-ner==0.25.0
 
 ## API
 
-Please take a look at the [**related Wiki page**](https://github.com/nicolay-r/bulk-chain/wiki)
+Please take a look at the [**related Wiki page**](https://github.com/nicolay-r/bulk-ner/wiki)
 
 ## Shell
 
