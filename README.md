@@ -1,6 +1,5 @@
 # bulk-ner 0.25.0 
 ![](https://img.shields.io/badge/Python-3.9-brightgreen.svg)
-![](https://img.shields.io/badge/AREkit-0.25.0-orange.svg)
 [![](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/nicolay-r/ner-service/blob/main/NER_annotation_service.ipynb)
 [![twitter](https://img.shields.io/twitter/url/https/shields.io.svg?style=social)](https://x.com/nicolayr_/status/1842300499011260827)
 [![PyPI downloads](https://img.shields.io/pypi/dm/bulk-ner.svg)](https://pypistats.org/packages/bulk-ner)
@@ -41,7 +40,7 @@ python -m bulk_ner.annotate \
     --batch-size 10 \
     --adapter "dynamic:models/dp_130.py:DeepPavlovNER" \
     --output "test-annotated.jsonl" \
-    %% \
+    %%m \
     --model "ner_ontonotes_bert_mult"
 ```
 
