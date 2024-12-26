@@ -1,10 +1,9 @@
-from arekit.common.bound import Bound
-from arekit.common.pipeline.items.base import BasePipelineItem
-from arekit.common.pipeline.utils import BatchIterator
-from arekit.common.text.partitioning import Partitioning
-
-from bulk_ner.src.entity import IndexedEntity
+from bulk_ner.src.core.bound import Bound
+from bulk_ner.src.entity_indexed import IndexedEntity
 from bulk_ner.src.ner.obj_desc import NerObjectDescriptor
+from bulk_ner.src.partitioning import Partitioning
+from bulk_ner.src.pipeline.item.base import BasePipelineItem
+from bulk_ner.src.pipeline.utils import BatchIterator
 from bulk_ner.src.utils import IdAssigner
 
 
@@ -42,15 +41,13 @@ class ChunkIterator:
 
 class NERPipelineItem(BasePipelineItem):
 
-    def __init__(self, id_assigner, model, obj_filter=None, chunk_limit=128,
-                 display_value_func=None, **kwargs):
+    def __init__(self, id_assigner, model, obj_filter=None, chunk_limit=128, **kwargs):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
         """
         assert(callable(obj_filter) or obj_filter is None)
         assert(isinstance(chunk_limit, int) and chunk_limit > 0)
         assert(isinstance(id_assigner, IdAssigner))
-        assert(callable(display_value_func) or display_value_func is None)
         super(NERPipelineItem, self).__init__(**kwargs)
 
         # Initialize bert-based model instance.
@@ -58,7 +55,6 @@ class NERPipelineItem(BasePipelineItem):
         self.__obj_filter = obj_filter
         self.__chunk_limit = chunk_limit
         self.__id_assigner = id_assigner
-        self.__disp_value_func = display_value_func
         self.__partitioning = Partitioning(text_fmt="list")
 
     @property
@@ -98,9 +94,7 @@ class NERPipelineItem(BasePipelineItem):
                 continue
 
             value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
-            entity = IndexedEntity(
-                value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id(),
-                display_value=self.__disp_value_func(value) if self.__disp_value_func is not None else None)
+            entity = IndexedEntity(value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id())
             yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
 
     def apply_core(self, input_data, pipeline_ctx):

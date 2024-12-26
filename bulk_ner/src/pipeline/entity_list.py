@@ -1,4 +1,4 @@
-from arekit.common.pipeline.items.base import BasePipelineItem
+from bulk_ner.src.pipeline.item.base import BasePipelineItem
 
 
 class HandleListPipelineItem(BasePipelineItem):

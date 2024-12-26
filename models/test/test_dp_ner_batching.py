@@ -1,7 +1,8 @@
 import time
 import unittest
 import deeppavlov
-from arekit.common.pipeline.utils import BatchIterator
+
+from bulk_ner.src.pipeline.utils import BatchIterator
 
 
 class TestNerBatching(unittest.TestCase):

@@ -1,13 +1,12 @@
 import os
 
-from arekit.common.pipeline.batching import BatchingPipelineLauncher
-from arekit.common.pipeline.context import PipelineContext
-from arekit.common.pipeline.utils import BatchIterator
-
-from bulk_ner.src.entity import IndexedEntity
+from bulk_ner.src.entity_indexed import IndexedEntity
+from bulk_ner.src.pipeline.batching import BatchingPipelineLauncher
+from bulk_ner.src.pipeline.context import PipelineContext
 from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
-from bulk_ner.src.pipeline.merge import MergeTextEntries
-from bulk_ner.src.pipeline.ner import NERPipelineItem
+from bulk_ner.src.pipeline.item.merge import MergeTextEntries
+from bulk_ner.src.pipeline.item.ner import NERPipelineItem
+from bulk_ner.src.pipeline.utils import BatchIterator
 from bulk_ner.src.service_prompt import DataService
 from bulk_ner.src.utils import IdAssigner, iter_params
 
@@ -43,4 +42,4 @@ class NERAnnotator(object):
             d = ctx._d
 
             for batch_ind in range(len(d["input"])):
-                yield {k: v[batch_ind] if v is not None else None for k, v in d.items()}
+                yield {k: v[batch_ind] for k, v in d.items()}

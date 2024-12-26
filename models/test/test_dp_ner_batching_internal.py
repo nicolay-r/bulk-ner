@@ -3,9 +3,10 @@ import unittest
 from pathlib import Path
 from typing import Union
 
-from arekit.common.pipeline.utils import BatchIterator
 from deeppavlov import build_model, Chainer
 from deeppavlov.core.data.utils import jsonify_data
+
+from bulk_ner.src.pipeline.utils import BatchIterator
 
 
 def predict_on_stream(config: Union[str, Path, dict], get_batch_func) -> None:
