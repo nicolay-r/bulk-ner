@@ -17,8 +17,14 @@ The key benefits of this tiny framework are as follows:
 
 # Installation
 
+From PyPI:
 ```bash
-pip install bulk-ner==0.25.0
+pip install bulk-ner
+```
+
+or latest from Github:
+```bash
+pip install git+https://github.com/nicolay-r/bulk-ner@master
 ```
 
 # Usage
