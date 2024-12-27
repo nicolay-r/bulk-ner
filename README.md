@@ -8,9 +8,7 @@
     <img src="logo.png"/>
 </p>
 
-A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models powered by 
-[AREkit](https://github.com/nicolay-r/AREkit) and the related [text-processing pipelines](https://github.com/nicolay-r/AREkit/wiki/Pipelines:-Text-Processing).
-
+A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models.
 The key benefits of this tiny framework are as follows:
 1. ☑️ Native support of batching;
 2. ☑️ Native long-input contexts handling.
