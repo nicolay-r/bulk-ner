@@ -9,7 +9,8 @@
 </p>
 
 A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models.
-The key benefits of this tiny framework are as follows:
+
+The key features of this framework are:
 1. ☑️ Native support of batching;
 2. ☑️ Native long-input contexts handling.
 
