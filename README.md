@@ -23,7 +23,7 @@ pip install bulk-ner
 
 or latest from Github:
 ```bash
-pip install git+https://github.com/nicolay-r/bulk-ner@master
+pip install git+https://github.com/nicolay-r/bulk-ner@main
 ```
 
 # Usage
