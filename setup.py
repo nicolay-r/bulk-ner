@@ -15,7 +15,7 @@ def get_requirements(filenames):
 
 setup(
     name='bulk_ner',
-    version='0.25.0',
+    version='0.25.1',
     python_requires=">=3.6",
     description='A no-strings inference implementation framework Named Entity Recognition (NER) '
                 'service of wrapped AI models powered by AREkit and the related text-processing pipelines.',
