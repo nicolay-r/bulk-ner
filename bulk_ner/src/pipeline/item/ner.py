@@ -1,5 +1,4 @@
 from bulk_ner.src.core.bound import Bound
-from bulk_ner.src.entity_indexed import IndexedEntity
 from bulk_ner.src.ner.obj_desc import NerObjectDescriptor
 from bulk_ner.src.partitioning import Partitioning
 from bulk_ner.src.pipeline.item.base import BasePipelineItem
@@ -41,7 +40,7 @@ class ChunkIterator:
 
 class NERPipelineItem(BasePipelineItem):
 
-    def __init__(self, id_assigner, model, obj_filter=None, chunk_limit=128, **kwargs):
+    def __init__(self, id_assigner, model, obj_filter=None, create_entity_func=None, chunk_limit=128, **kwargs):
         """ chunk_limit: int
                 length of text part in words that is going to be provided in input.
         """
@@ -56,6 +55,7 @@ class NERPipelineItem(BasePipelineItem):
         self.__chunk_limit = chunk_limit
         self.__id_assigner = id_assigner
         self.__partitioning = Partitioning(text_fmt="list")
+        self.__create_entity_func = create_entity_func
 
     @property
     def SupportBatching(self):
@@ -94,7 +94,9 @@ class NERPipelineItem(BasePipelineItem):
                 continue
 
             value = " ".join(terms_list[s_obj.Position:s_obj.Position + s_obj.Length])
-            entity = IndexedEntity(value=value, e_type=s_obj.ObjectType, entity_id=self.__id_assigner.get_id())
+            entity = self.__create_entity_func(value=value,
+                                               e_type=s_obj.ObjectType,
+                                               entity_id=self.__id_assigner.get_id())
             yield entity, Bound(pos=chunk_offset + s_obj.Position, length=s_obj.Length)
 
     def apply_core(self, input_data, pipeline_ctx):

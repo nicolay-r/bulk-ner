@@ -20,7 +20,8 @@ class NERAnnotator(object):
         self.pipeline = [
             NERPipelineItem(id_assigner=IdAssigner(),
                             model=ner_model,
-                            chunk_limit=chunk_limit),
+                            chunk_limit=chunk_limit,
+                            create_entity_func=lambda **kwargs: IndexedEntity(**kwargs)),
             HandleListPipelineItem(
                 map_item_func=lambda _, t: [t.Value, t.Type, t.ID] if isinstance(t, IndexedEntity) else t),
             MergeTextEntries() if do_merge_terms else None
