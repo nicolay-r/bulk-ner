@@ -13,7 +13,9 @@ from bulk_ner.src.utils import IdAssigner
 
 
 class TransformersNERPipelineItem(BasePipelineItem):
-    """ NOTE: This code is expected to be refactored for nesting BaseNER.
+    """ TODO: This code is expected to be refactored for nesting BaseNER.
+
+        TODO. Customization for IndexedEntity.
     """
 
     def __init__(self, id_assigner, ner_model_name, device, obj_filter=None, display_value_func=None, **kwargs):
