@@ -24,6 +24,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
                                  class_name="DeepPavlovNER")(model="ner_ontonotes_bert")
 
         annotator = NERAnnotator(ner_model=ner_model,
+                                 entity_func=lambda t: [t.Value, t.Type, t.ID],
                                  chunk_limit=128)
 
         data_it = annotator.iter_annotated_data(

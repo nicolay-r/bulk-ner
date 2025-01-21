@@ -57,6 +57,7 @@ if __name__ == '__main__':
     }
 
     annotator = NERAnnotator(ner_model=models_preset["dynamic"](),
+                             entity_func=lambda t: [t.Value, t.Type, t.ID],
                              chunk_limit=args.chunk_limit)
 
     input_formatters = {

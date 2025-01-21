@@ -16,14 +16,17 @@ CWD = os.getcwd()
 
 class NERAnnotator(object):
 
-    def __init__(self, ner_model, chunk_limit, do_merge_terms=True):
+    def __init__(self, ner_model, chunk_limit, entity_func=None, do_merge_terms=True):
+
+        entity_func = (lambda item: item) if entity_func is None else entity_func
+
         self.pipeline = [
             NERPipelineItem(id_assigner=IdAssigner(),
                             model=ner_model,
                             chunk_limit=chunk_limit,
                             create_entity_func=lambda **kwargs: IndexedEntity(**kwargs)),
             HandleListPipelineItem(
-                map_item_func=lambda _, t: [t.Value, t.Type, t.ID] if isinstance(t, IndexedEntity) else t),
+                map_item_func=lambda _, t: entity_func(t) if isinstance(t, IndexedEntity) else t),
             MergeTextEntries() if do_merge_terms else None
         ]
 
