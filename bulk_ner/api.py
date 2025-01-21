@@ -36,7 +36,7 @@ class NERAnnotator(object):
         for batch in BatchIterator(prompts_it, batch_size=batch_size):
             index, input = zip(*batch)
             ctx = BatchingPipelineLauncher.run(pipeline=self.pipeline,
-                                               pipeline_ctx=PipelineContext(d={"index": index, "input": input}),
+                                               pipeline_ctx=PipelineContext(d={"input": input}),
                                                src_key="input")
 
             # Target.
