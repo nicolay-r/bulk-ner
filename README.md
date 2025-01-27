@@ -7,8 +7,11 @@
 <p align="center">
     <img src="logo.png"/>
 </p>
+<p align="center">
+  <a href="https://github.com/nicolay-r/nlp-thirdgate?tab=readme-ov-file#ner"><b>Third-party providers hosting</b>↗️</a>
+</p>
 
-A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of wrapped AI models.
+A no-strings inference implementation framework [Named Entity Recognition (NER)](https://en.wikipedia.org/wiki/Named-entity_recognition) service of [wrapped AI models ↗️](https://github.com/nicolay-r/nlp-thirdgate?tab=readme-ov-file#ner).
 
 The key features of this framework are:
 1. ☑️ Native support of batching;
@@ -55,6 +58,9 @@ List of the supported models is available here:
 https://docs.deeppavlov.ai/en/master/features/models/NER.html
 
 ## Deploy your model
+<p align="center">
+  <a href="https://github.com/nicolay-r/nlp-thirdgate?tab=readme-ov-file#ner"><b>Third-party providers hosting</b>↗️</a>
+</p>
 
 > **Quick example**: Check out the [default DeepPavlov wrapper implementation](/models/dp_130.py)
 
