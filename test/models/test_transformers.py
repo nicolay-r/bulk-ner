@@ -3,7 +3,7 @@ import unittest
 
 from tqdm import tqdm
 
-from models.transformers_4_24_0 import annotate_ner_ppl, annotate_ner, init_token_classification_model
+from transformers_4_24_0 import init_token_classification_model, annotate_ner, annotate_ner_ppl
 
 
 class TestTransformersNERPipeline(unittest.TestCase):
