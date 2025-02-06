@@ -41,12 +41,18 @@ Please take a look at the [**related Wiki page**](https://github.com/nicolay-r/b
 
 This is an example for using `DeepPavlov==1.3.0` as an adapter for NER models passed via `--adapter` parameter:
 
+1. Downloading provider:
+```bash
+wget https://raw.githubusercontent.com/nicolay-r/nlp-thirdgate/refs/heads/master/ner/dp_130.py
+```
+
+2. Launching inference:
 ```bash
 python -m bulk_ner.annotate \
     --src "test/data/test.tsv" \
     --prompt "{text}" \
     --batch-size 10 \
-    --adapter "dynamic:models/dp_130.py:DeepPavlovNER" \
+    --adapter "dynamic:dp_130.py:DeepPavlovNER" \
     --output "test-annotated.jsonl" \
     %%m \
     --model "ner_ontonotes_bert_mult"
