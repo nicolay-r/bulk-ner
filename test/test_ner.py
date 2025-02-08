@@ -19,7 +19,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
 
     def test_benchmark(self):
 
-        ner_model = dynamic_init(src_dir=join(TestTransformersNERPipeline.CURRENT_DIR, "../models"),
+        ner_model = dynamic_init(src_dir=TestTransformersNERPipeline.CURRENT_DIR,
                                  class_filepath="dp_130.py",
                                  class_name="DeepPavlovNER")(model="ner_ontonotes_bert")
 
