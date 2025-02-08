@@ -27,8 +27,16 @@ class BaseNER(object):
             yield seq, descriptors
 
     def _forward(self, seqences):
-        """ This function is expected to return list of terms
-            alongside with the list of labels in CONLL format.
+        """ Input:
+                Sequences: list of chunks (i.e. batch) that are
+                expected to be processed via NER framework.
+            Output:
+                This function is expected to return list of terms
+                alongside with the list of labels in CONLL format.
+                
+            Example:
+                [['Fëdorovna', '.', 'With', 'these', 'words', 'she', 'greeted', 'Prince', 'Vasíli', 'Kurágin']]
+                [['B-PERSON', 'O', 'O', 'O', 'O', 'O', 'O', 'O', 'B-PERSON', 'I-PERSON']]
         """
         raise NotImplementedError()
 
