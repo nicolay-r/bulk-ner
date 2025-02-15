@@ -63,7 +63,7 @@ if __name__ == '__main__':
     input_formatters = {
         None: lambda _: test_ner_demo(
             iter_answers=lambda example: annotator.iter_annotated_data(data_dict_it=iter([(0, example)]),
-                                                                       prompt=args.prompt,
+                                                                       prompts=args.prompt,
                                                                        batch_size=1)),
         "csv": lambda filepath: CsvService.read(src=filepath, as_dict=True, skip_header=True,
                                                 delimiter=csv_args_dict.get("delimiter", ","),
@@ -85,7 +85,7 @@ if __name__ == '__main__':
     if src_ext is None:
         exit(0)
 
-    ctxs_it = annotator.iter_annotated_data(data_dict_it=texts_it, prompt=args.prompt, batch_size=args.batch_size)
+    ctxs_it = annotator.iter_annotated_data(data_dict_it=texts_it, prompts=args.prompt, batch_size=args.batch_size)
     output_formatters["jsonl"](dicts_it=tqdm(ctxs_it, desc=f"Processing `{args.src}`"))
 
     logger.info(f"Saved: {args.output}")

@@ -4,6 +4,7 @@ from bulk_ner.src.entity_indexed import IndexedEntity
 from bulk_ner.src.pipeline.batching import BatchingPipelineLauncher
 from bulk_ner.src.pipeline.context import PipelineContext
 from bulk_ner.src.pipeline.entity_list import HandleListPipelineItem
+from bulk_ner.src.pipeline.item.base import BasePipelineItem
 from bulk_ner.src.pipeline.item.merge import MergeTextEntries
 from bulk_ner.src.pipeline.item.ner import NERPipelineItem
 from bulk_ner.src.pipeline.utils import BatchIterator
@@ -30,19 +31,45 @@ class NERAnnotator(object):
             MergeTextEntries() if do_merge_terms else None
         ]
 
-    def iter_annotated_data(self, data_dict_it, prompt, batch_size=1):
+    def handle_batch(self, batch, col_output, col_prompt=None):
+        assert(isinstance(batch, list))
+
+        if col_prompt is None:
+            col_prompt = col_output
+
+        ctx = BatchingPipelineLauncher.run(pipeline=self.pipeline,
+                                           pipeline_ctx=PipelineContext(d={col_prompt: batch}),
+                                           src_key=col_prompt)
+
+        # Target.
+        d = ctx._d
+
+        for batch_ind in range(len(d[col_prompt])):
+
+            yield {(k if k != BasePipelineItem.DEFAULT_RESULT_KEY else col_output):
+                       v[batch_ind] for k, v in d.items()}
+
+    def iter_annotated_data(self, data_dict_it, prompts, batch_size=1, default_output_col="output", keep_prompt=False):
         """ This is the main API method for calling.
         """
+        assert(isinstance(prompts, dict) or isinstance(prompts, str))
 
-        prompts_it = DataService.iter_prompt(data_dict_it=data_dict_it, prompt=prompt, parse_fields_func=iter_params)
+        prompts = {default_output_col: prompts} if isinstance(prompts, str) else prompts
 
-        for batch in BatchIterator(prompts_it, batch_size=batch_size):
-            ctx = BatchingPipelineLauncher.run(pipeline=self.pipeline,
-                                               pipeline_ctx=PipelineContext(d={"input": batch}),
-                                               src_key="input")
+        for data_batch in BatchIterator(data_dict_it, batch_size=batch_size):
+            for col_output, prompt in prompts.items():
 
-            # Target.
-            d = ctx._d
+                prompts_it = DataService.iter_prompt(data_dict_it=data_batch,
+                                                     prompt=prompt,
+                                                     parse_fields_func=iter_params)
 
-            for batch_ind in range(len(d["input"])):
-                yield {k: v[batch_ind] for k, v in d.items()}
+                handled_data_it = self.handle_batch(batch=list(prompts_it),
+                                                    col_output=col_output,
+                                                    col_prompt=f"prompt_{col_output}" if keep_prompt else None)
+
+                # Applying updated content from the handled column.
+                for record_ind, record in enumerate(handled_data_it):
+                    data_batch[record_ind] |= record
+
+            for item in data_batch:
+                yield item

@@ -2,7 +2,10 @@ class BasePipelineItem(object):
     """ Single pipeline item that might be instatiated and embedded into pipeline.
     """
 
-    def __init__(self, src_key="result", result_key="result", src_func=None):
+    DEFAULT_SOURCE_KEY = "result"
+    DEFAULT_RESULT_KEY = "result"
+
+    def __init__(self, src_key=DEFAULT_SOURCE_KEY, result_key=DEFAULT_RESULT_KEY, src_func=None):
         assert(isinstance(src_key, str) or src_key is None)
         assert(callable(src_func) or src_func is None)
         self.__src_key = src_key

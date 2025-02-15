@@ -28,8 +28,8 @@ class TestTransformersNERPipeline(unittest.TestCase):
                                  chunk_limit=128)
 
         data_it = annotator.iter_annotated_data(
-            data_dict_it=[{"text": TestTransformersNERPipeline.text}],
-            prompt="{text}")
+            data_dict_it=iter([{"text": TestTransformersNERPipeline.text}]),
+            prompts="{text}")
         
         for d in data_it:
             print(d)
