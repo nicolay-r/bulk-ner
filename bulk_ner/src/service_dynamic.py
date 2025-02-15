@@ -2,13 +2,14 @@ import importlib
 import sys
 
 
-def dynamic_init(src_dir, class_filepath, class_name=None):
+def dynamic_init(src_dir, class_filepath, class_name=None, handle_func=None):
     sys.path.append(src_dir)
     class_path_list = class_filepath.split('/')
     class_path_list[-1] = '.'.join(class_path_list[-1].split('.')[:-1])
     class_name = class_path_list[-1].title() if class_name is None else class_name
     class_path = ".".join(class_path_list + [class_name])
-    print(f"Dynamic loading for the file and class `{class_path}`")
+    if handle_func:
+        handle_func(class_path)
     cls = auto_import(class_path, is_class=False)
     return cls
 

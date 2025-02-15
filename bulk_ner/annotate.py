@@ -65,9 +65,13 @@ if __name__ == '__main__':
 
     # Initialize NER model
     models_preset = {
-        "dynamic": lambda: dynamic_init(src_dir=CWD, class_filepath=ner_model_name, class_name=ner_model_params)(
+        "dynamic": lambda: dynamic_init(
+            src_dir=CWD, class_filepath=ner_model_name, class_name=ner_model_params,
+            handle_func=lambda class_path: logger.info((f"Dynamic loading for the file and class `{class_path}`"))
+        )(
             # The rest of parameters could be provided from cmd.
-            **model_args_dict)
+            **model_args_dict
+        )
     }
 
     annotator = NERAnnotator(ner_model=models_preset["dynamic"](),
