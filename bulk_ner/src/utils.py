@@ -49,7 +49,7 @@ def test_ner_demo(iter_answers=None):
         if user_input.lower() == 'exit':
             break
 
-        # Finally asking LLM.
+        # Finally asking NER system.
         for a in iter_answers(user_input):
             print(a)
 
