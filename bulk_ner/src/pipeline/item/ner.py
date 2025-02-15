@@ -8,7 +8,7 @@ from bulk_ner.src.utils import IdAssigner
 
 class ChunkIterator:
 
-    def __init__(self, data_iter, batch_size, chunk_limit):
+    def __init__(self, data_iter, batch_size, chunk_limit=None):
         assert(isinstance(batch_size, int) and batch_size > 0)
         self.__data_iter = data_iter
         self.__index = -1
@@ -28,8 +28,11 @@ class ChunkIterator:
                 self.__index += 1
             except StopIteration:
                 break
-            for chunk_start in range(0, len(data), self.__chunk_limit):
-                chunk = data[chunk_start:chunk_start + self.__chunk_limit]
+
+            chunk_limit = len(data) if self.__chunk_limit is None else self.__chunk_limit
+
+            for chunk_start in range(0, len(data), chunk_limit):
+                chunk = data[chunk_start:chunk_start + chunk_limit]
                 self.__buffer.append([self.__index, chunk])
 
         if len(self.__buffer) > 0:
@@ -45,7 +48,7 @@ class NERPipelineItem(BasePipelineItem):
                 length of text part in words that is going to be provided in input.
         """
         assert(callable(obj_filter) or obj_filter is None)
-        assert(isinstance(chunk_limit, int) and chunk_limit > 0)
+        assert((isinstance(chunk_limit, int) and chunk_limit > 0) or chunk_limit is None)
         assert(isinstance(id_assigner, IdAssigner))
         super(NERPipelineItem, self).__init__(**kwargs)
 
