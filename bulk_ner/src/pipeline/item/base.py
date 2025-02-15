@@ -1,6 +1,3 @@
-from bulk_ner.src.pipeline.context import PipelineContext
-
-
 class BasePipelineItem(object):
     """ Single pipeline item that might be instatiated and embedded into pipeline.
     """
