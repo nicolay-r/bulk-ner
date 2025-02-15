@@ -8,7 +8,7 @@ class DataService(object):
         """
         assert(callable(parse_fields_func))
         field_names = list(parse_fields_func(prompt))
-        for row_id, data_dict in enumerate(data_dict_it):
+        for data_dict in data_dict_it:
             assert(isinstance(data_dict, dict))
             fmt_d = {col_name: data_dict[col_name] for col_name in field_names}
-            yield row_id, prompt.format(**fmt_d)
+            yield prompt.format(**fmt_d)

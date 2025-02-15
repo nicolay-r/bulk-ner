@@ -37,9 +37,8 @@ class NERAnnotator(object):
         prompts_it = DataService.iter_prompt(data_dict_it=data_dict_it, prompt=prompt, parse_fields_func=iter_params)
 
         for batch in BatchIterator(prompts_it, batch_size=batch_size):
-            index, input = zip(*batch)
             ctx = BatchingPipelineLauncher.run(pipeline=self.pipeline,
-                                               pipeline_ctx=PipelineContext(d={"input": input}),
+                                               pipeline_ctx=PipelineContext(d={"input": batch}),
                                                src_key="input")
 
             # Target.
