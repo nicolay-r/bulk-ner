@@ -49,15 +49,13 @@ class NERAnnotator(object):
             yield {(k if k != BasePipelineItem.DEFAULT_RESULT_KEY else col_output):
                        v[batch_ind] for k, v in d.items()}
 
-    def iter_annotated_data(self, data_dict_it, prompts, batch_size=1, default_output_col="output", keep_prompt=False):
+    def iter_annotated_data(self, data_dict_it, schema, batch_size=1, keep_prompt=False):
         """ This is the main API method for calling.
         """
-        assert(isinstance(prompts, dict) or isinstance(prompts, str))
-
-        prompts = {default_output_col: prompts} if isinstance(prompts, str) else prompts
+        assert(isinstance(schema, dict))
 
         for data_batch in BatchIterator(data_dict_it, batch_size=batch_size):
-            for col_output, prompt in prompts.items():
+            for col_output, prompt in schema.items():
 
                 prompts_it = DataService.iter_prompt(data_dict_it=data_batch,
                                                      prompt=prompt,

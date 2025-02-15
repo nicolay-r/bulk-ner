@@ -1,4 +1,5 @@
 import argparse
+import json
 import sys
 
 from tqdm import tqdm
@@ -20,7 +21,10 @@ if __name__ == '__main__':
 
     parser.add_argument('--adapter', dest='adapter', type=str, default=None)
     parser.add_argument('--del-meta', dest="del_meta", type=list, default=["parent_ctx"])
-    parser.add_argument('--prompt', dest='prompt', type=str, default="{text}")
+    parser.add_argument('--prompt', dest='prompt', type=str, default=None)
+    parser.add_argument('--keep-prompt', action='store_true', default=False)
+    parser.add_argument('--default-field-output', dest='default_field_output', default="output")
+    parser.add_argument('--schema', dest='schema', type=str, default=None)
     parser.add_argument('--src', dest='src', type=str, default=None)
     parser.add_argument('--output', dest='output', type=str, default=None)
     parser.add_argument('--batch-size', dest='batch_size', type=int, default=5)
@@ -29,7 +33,17 @@ if __name__ == '__main__':
     # Extract native arguments.
     native_args = CmdArgsService.extract_native_args(sys.argv, end_prefix="%%")
     args = parser.parse_args(args=native_args[1:])
-    
+
+    # Reading the prompting schema.
+    if args.prompt is not None and args.schema is not None:
+        raise Exception("Error: you can't set both schema and prompt!")
+    if args.prompt is not None:
+        schema = {args.default_field_output: args.prompt}
+    else:
+        schema = json.loads(args.schema)
+
+    logger.info(f"Loaded Schema:\n{json.dumps(schema, indent=4)}")
+
     # Extract csv-related arguments.
     csv_args = CmdArgsService.find_grouped_args(lst=sys.argv, starts_with="%%csv", end_prefix="%%")
     csv_args_dict = CmdArgsService.args_to_dict(csv_args)
@@ -63,7 +77,7 @@ if __name__ == '__main__':
     input_formatters = {
         None: lambda _: test_ner_demo(
             iter_answers=lambda example: annotator.iter_annotated_data(data_dict_it=iter([(0, example)]),
-                                                                       prompts=args.prompt,
+                                                                       schema=args.prompt,
                                                                        batch_size=1)),
         "csv": lambda filepath: CsvService.read(src=filepath, as_dict=True, skip_header=True,
                                                 delimiter=csv_args_dict.get("delimiter", ","),
@@ -85,7 +99,8 @@ if __name__ == '__main__':
     if src_ext is None:
         exit(0)
 
-    ctxs_it = annotator.iter_annotated_data(data_dict_it=texts_it, prompts=args.prompt, batch_size=args.batch_size)
+    ctxs_it = annotator.iter_annotated_data(data_dict_it=texts_it, schema=schema, batch_size=args.batch_size,
+                                            keep_prompt=args.keep_prompt)
     output_formatters["jsonl"](dicts_it=tqdm(ctxs_it, desc=f"Processing `{args.src}`"))
 
     logger.info(f"Saved: {args.output}")

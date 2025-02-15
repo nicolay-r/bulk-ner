@@ -1,3 +1,4 @@
+import json
 import unittest
 from os.path import dirname, realpath, join
 
@@ -29,7 +30,7 @@ class TestTransformersNERPipeline(unittest.TestCase):
 
         data_it = annotator.iter_annotated_data(
             data_dict_it=iter([{"text": TestTransformersNERPipeline.text}]),
-            prompts="{text}")
+            schema=json.loads('{"annotated":"{text}"}'))
         
         for d in data_it:
             print(d)
